@@ -21,7 +21,7 @@ exports.signup = (req, res, next) => {
 
 exports.login = (req, res, next) => {
     // recherche de l'utilisateur correspondant au mail renseigné
-    User.findOne({email: req.body.email})
+    User.findOne({ email: req.body.email })
         .then(user => {
             if (!user) { // si entree email non valide
                 return res.status(401).json({error: 'Email invalide'})
@@ -39,7 +39,11 @@ exports.login = (req, res, next) => {
                     )
                     res.status(200).json({
                         userId: user._id,
-                        token: userToken
+                        token: jwt.sign(
+                            { userId: user._id },
+                            'RANDOM_TOKEN_SECRET',
+                            {expiresIn: '24h'}
+                        )
                     })
                 })
                 .catch(error => res.status(500).json({ error }))
