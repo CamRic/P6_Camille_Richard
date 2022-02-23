@@ -114,7 +114,7 @@ exports.likeSauce = (req, res, next) => {
                     }                
                     break
                 case -1: // dislike
-                    if (req.body.userId in sauce.usersUnliked) {
+                    if (req.body.userId in sauce.usersUnliked) { // ici le bug
                         break
                     }
                     if (req.body.userId in sauce.usersLiked) {
