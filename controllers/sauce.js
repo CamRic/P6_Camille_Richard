@@ -51,27 +51,7 @@ exports.deleteSauce = (req, res, next) => {
         .catch(error => res.status(404).json({error}))
 }
 
-/*
 // modifier une sauce
-exports.modifySauce = (req, res, next) => {
-    const sauceObject = req.file ?
-    {
-        ...JSON.parse(req.body.sauce),
-        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-    } : { ...req.body } // ?
-    console.log('sauce object: ' + sauceObject)
-    console.log('object usr id: ' + sauceObject.userId)
-    console.log('req auth userid: ' + req.auth.userId)
-    if (sauceObject.userId !== req.auth.userId) {
-        return res.status(401).json({error: 'unauthorized request'})
-    }
-    Sauce.updateOne({ _id: req.params.id}, {...sauceObject, _id: req.params.id})
-        .then(() => res.status(200).json({message: "Sauce modifiée!"}))
-        .catch(error => res.status(400).json({ error }))
-}
-*/
-
-
 exports.modifySauce = (req, res, next) => {
     Sauce.findOne({_id: req.params.id})
         .then(sauce => {
@@ -93,58 +73,70 @@ exports.modifySauce = (req, res, next) => {
         .catch(error => res.status(404).json({error: 'Sauce introuvable...'}))
 }
 
+// bool userid dans tableau like ou dislike
+function checkUserLikes(usersArray, userId) {
+    let userIn = false
+    for (user of usersArray) {
+        if (user == userId) userIn = true
+    }
+    return userIn
+}
+
+// suppr userid du tableau
+function delUserFromList(array, userid) {
+    array.splice(array.indexOf(userid), 1)
+}
+
+// like ou dislike d'une sauce 
 exports.likeSauce = (req, res, next) => {
     Sauce.findOne({ _id: req.params.id })
         .then(sauce => {
             if (!sauce) {
                 return res.status(404).json({ error: 'ressource not found'})
             }
-            var sauceObj = new Sauce({
-                ...sauce
-            })
             switch (req.body.like) {
+                
                 case 0: // annule
-                    if (req.body.userId in sauce.usersLiked) {
-                        sauce.usersLiked.unshift(req.body.userId)
-                        sauce.likes = sauce.likes - 1
+                    if (checkUserLikes(sauce.usersLiked, req.body.userId)) {
+                        delUserFromList(sauce.usersLiked, req.body.userId)
+                        sauce.likes--
                     }
-                    if (req.body.userId in sauce.usersUnliked) {
-                        sauce.usersUnLiked.unshift(req.body.userId)
-                        sauce.unlikes = sauce.unlikes - 1
-                    }                
+                    if (checkUserLikes(sauce.usersDisliked, req.body.userId)) {
+                        delUserFromList(sauce.usersDisliked, req.body.userId)
+                        sauce.dislikes--
+                    }
                     break
+
                 case -1: // dislike
-                    if (req.body.userId in sauce.usersUnliked) { // ici le bug
-                        break
+                    if (checkUserLikes(sauce.usersDisliked, req.body.userId)) { break }
+                    if (checkUserLikes(sauce.usersLiked, req.body.userId)) {
+                        delUserFromList(sauce.usersLiked, req.body.userId)
+                        sauce.likes--
                     }
-                    if (req.body.userId in sauce.usersLiked) {
-                        sauce.usersLiked.unshift(req.body.userId)
-                        sauce.likes = sauce.likes - 1
-                    }
-                    sauce.usersUnliked.push(req.body.userId)
-                    sauce.unlikes = sauce.unlikes + 1
+                    sauce.usersDisliked.push(req.body.userId)
+                    sauce.dislikes++
                     break
+
                 case 1: // like
-                    if (req.body.userId in sauce.usersLiked) {
-                        break
+                    if (checkUserLikes(sauce.usersLiked, req.body.userId)) { break }
+                    if (checkUserLikes(sauce.usersDisliked, req.body.userId)) {
+                        delUserFromList(sauce.usersDisliked, req.body.userId)
+                        sauce.dislikes--
                     }
-                    if (req.body.userId in sauce.usersUnliked) {
-                        sauce.usersUnLiked.unshift(req.body.userId)
-                        sauce.unlikes = sauce.unlikes - 1
-                    }
-                    sauce.likes = sauce.likes + 1
                     sauce.usersLiked.push(req.body.userId)
+                    sauce.likes++
                     break
+
                 default:
                     console.log('error invalid request')
                     break
             }
-            console.log(sauce)
-            console.log('sending modif to db')
-            Sauce.updateOne({ _id: req.params.id }, { $set : { 'usersLiked': sauce.usersLiked , 
-                                                            'userUnliked': sauce.userUnliked , 
-                                                            'likes': sauce.likes,
-                                                            'unlikes': sauce.unlikes } })
+            Sauce.updateOne({ _id: req.params.id }, { $set : { 
+                                                            'usersLiked': sauce.usersLiked , 
+                                                            'usersDisliked': sauce.usersDisliked , 
+                                                            'likes': sauce.likes ,
+                                                            'dislikes': sauce.dislikes 
+                                                            } })
                 .then(() => res.status(200).json({ message: 'like action valide'}))
                 .catch(error => res.status(400).json({ error }))
         })
