@@ -22,6 +22,7 @@ exports.getOneSauce = (req, res, next) => {
 
 // créer une nouvelle sauce
 exports.createSauce = (req, res, next) => {
+    console.log("creating sauce" + JSON.stringify(req.body))
     const sauceObject = JSON.parse(req.body.sauce)
     const sauce = new Sauce({
         ...sauceObject,
