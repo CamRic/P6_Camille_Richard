@@ -59,7 +59,7 @@ exports.modifySauce = (req, res, next) => {
                 return res.status(404).json({ error: 'ressource not found'})
             }
             if (sauce.userId !== req.auth.userId) {
-                return res.status(401).json({error: 'Unauthorized rrequest'})
+                return res.status(401).json({error: 'Unauthorized request'})
             }
             const sauceObject = req.file ?
             {
