@@ -22,6 +22,7 @@ exports.getOneSauce = (req, res, next) => {
 
 // créer une nouvelle sauce
 exports.createSauce = (req, res, next) => {
+    console.log("creating sauce" + JSON.stringify(req.body))
     const sauceObject = JSON.parse(req.body.sauce)
     const sauce = new Sauce({
         ...sauceObject,
@@ -59,7 +60,7 @@ exports.modifySauce = (req, res, next) => {
                 return res.status(404).json({ error: 'ressource not found'})
             }
             if (sauce.userId !== req.auth.userId) {
-                return res.status(401).json({error: 'Unauthorized rrequest'})
+                return res.status(401).json({error: 'Unauthorized request'})
             }
             const sauceObject = req.file ?
             {

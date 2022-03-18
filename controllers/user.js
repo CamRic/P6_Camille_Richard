@@ -1,14 +1,21 @@
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const sanitize = require('mongo-sanitize')
 
 const User = require('../models/User')
 
 exports.signup = (req, res, next) => {
+    // security
+    var sainPassword = sanitize(req.body.password)
+    console.log('essai sanitize: ' + sanitize(req.body.email))
+    console.log('mdp sain: ' + sainPassword)
+    var sainMail = sanitize(req.body.email)
+    console.log('email sain: ' + sainMail)
     // hashage du mdp
-    bcrypt.hash(req.body.password, 10)
+    bcrypt.hash(sainPassword, 10)
         .then(hash => {
             const newUser = new User({
-                email: req.body.email,
+                email: sainMail,
                 password: hash
             })
             // enregistre utilisateur dans bdd
@@ -20,14 +27,17 @@ exports.signup = (req, res, next) => {
 }
 
 exports.login = (req, res, next) => {
+    // security
+    var sainPassword = sanitize(req.body.password)
+    var sainMail = sanitize(req.body.email)
     // recherche de l'utilisateur correspondant au mail renseigné
-    User.findOne({ email: req.body.email })
+    User.findOne({ email: sainMail })
         .then(user => {
             if (!user) { // si entree email non valide
                 return res.status(401).json({error: 'Email invalide'})
             }
             // si email valide, verification du mot de passe
-            bcrypt.compare(req.body.password, user.password)
+            bcrypt.compare(sainPassword, user.password)
                 .then(valid => { 
                     if (!valid) { // si mot de passe invalide
                         return res.status(401).json({ error: 'Mot de passe non valide'})
