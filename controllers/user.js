@@ -7,10 +7,7 @@ const User = require('../models/User')
 exports.signup = (req, res, next) => {
     // security
     var sainPassword = sanitize(req.body.password)
-    console.log('essai sanitize: ' + sanitize(req.body.email))
-    console.log('mdp sain: ' + sainPassword)
     var sainMail = sanitize(req.body.email)
-    console.log('email sain: ' + sainMail)
     // hashage du mdp
     bcrypt.hash(sainPassword, 10)
         .then(hash => {
@@ -42,11 +39,6 @@ exports.login = (req, res, next) => {
                     if (!valid) { // si mot de passe invalide
                         return res.status(401).json({ error: 'Mot de passe non valide'})
                     }
-                    const userToken = jwt.sign(
-                        {userId: user._id},
-                        'RANDOM_TOKEN_SECRET',
-                        {expiresIn: '24h'}
-                    )
                     res.status(200).json({
                         userId: user._id,
                         token: jwt.sign(
