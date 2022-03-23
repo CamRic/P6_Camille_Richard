@@ -13,7 +13,7 @@ mongoose.connect('mongodb+srv://adminPiiquante:cLCJzzPprIEVzIZ2@piiquante.lkwp4.
         useUnifiedTopology: true
     })
     .then(() => console.log('Connected to database'))
-    .catch(() => console.log('ERROR: can\'t connect to database'))
+    .catch(error => handleError(error))
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
