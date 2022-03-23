@@ -7,6 +7,6 @@ $ npm install
 $ nodemon server
 
 # lancer le front end
-$ git clone 
-$ cd
+$ git clone https://github.com/OpenClassrooms-Student-Center/Web-Developer-P6.git
+$ cd Web-Developer-P6
 $ npm start
