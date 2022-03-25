@@ -9,10 +9,10 @@ exports.signup = (req, res, next) => {
     var sainPassword = sanitize(req.body.password)
     var sainMail = sanitize(req.body.email)
     // hashage du mdp
-    bcrypt.hash(sainPassword, 10)
+    bcrypt.hash(req.body.password, 10)
         .then(hash => {
             const newUser = new User({
-                email: sainMail,
+                email: req.body.email,
                 password: hash
             })
             // enregistre utilisateur dans bdd
@@ -28,13 +28,13 @@ exports.login = (req, res, next) => {
     var sainPassword = sanitize(req.body.password)
     var sainMail = sanitize(req.body.email)
     // recherche de l'utilisateur correspondant au mail renseigné
-    User.findOne({ email: sainMail })
+    User.findOne({ email: req.body.email })
         .then(user => {
             if (!user) { // si entree email non valide
                 return res.status(401).json({error: 'Email invalide'})
             }
             // si email valide, verification du mot de passe
-            bcrypt.compare(sainPassword, user.password)
+            bcrypt.compare(req.body.password, user.password)
                 .then(valid => { 
                     if (!valid) { // si mot de passe invalide
                         return res.status(401).json({ error: 'Mot de passe non valide'})
