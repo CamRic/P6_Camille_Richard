@@ -1,13 +1,9 @@
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-const sanitize = require('mongo-sanitize')
 
 const User = require('../models/User')
 
 exports.signup = (req, res, next) => {
-    // security
-    var sainPassword = sanitize(req.body.password)
-    var sainMail = sanitize(req.body.email)
     // hashage du mdp
     bcrypt.hash(req.body.password, 10)
         .then(hash => {
@@ -24,9 +20,6 @@ exports.signup = (req, res, next) => {
 }
 
 exports.login = (req, res, next) => {
-    // security
-    var sainPassword = sanitize(req.body.password)
-    var sainMail = sanitize(req.body.email)
     // recherche de l'utilisateur correspondant au mail renseigné
     User.findOne({ email: req.body.email })
         .then(user => {

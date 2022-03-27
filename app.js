@@ -19,13 +19,6 @@ mongoose.connect('mongodb+srv://adminPiiquante:cLCJzzPprIEVzIZ2@piiquante.lkwp4.
 app.use(express.json())
 app.use(mongoSanitize())
 app.use((req, res, next) => {
-    console.log(JSON.stringify(req.body))
-    next()
-})
-
-
-
-app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
@@ -33,14 +26,6 @@ app.use((req, res, next) => {
 })
 
 app.use('/images', express.static(path.join(__dirname, 'images')))
-
-/*
-app.use((req, res, next) => {
-    console.log('requete recue')
-    next()
-})
-*/
-
 app.use('/api/auth', userRoutes)
 app.use('/api/sauces', sauceRoutes)
 
